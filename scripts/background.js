@@ -4,8 +4,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return
   }
 
-  if (message.action === "manualToggle" && message.tabId) {
-    chrome.tabs.get(message.tabId, (tab) => {
+  console.log(`[DEBUG] Action received: ${message.action}`)
+
+  const injectScript = (tabId, scriptFile, successMessage) => {
+    chrome.tabs.get(tabId, () => {
       if (chrome.runtime.lastError) {
         console.error(
           "[PDF-Darkmode] [ERROR] chrome.tabs.get failed:",
@@ -16,21 +18,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       chrome.scripting
         .executeScript({
-          target: { tabId: message.tabId },
-          files: ["scripts/toggle.js"],
+          target: { tabId },
+          files: [scriptFile],
         })
         .then(() => {
-          sendResponse({ status: "Toggle script executed" })
+          console.log(`[DEBUG] ${successMessage}`)
+          sendResponse({ status: successMessage })
         })
         .catch((err) => {
           console.error(
-            "[PDF-Darkmode] [ERROR] Failed to inject toggle.js:",
+            `[PDF-Darkmode] [ERROR] Failed to inject ${scriptFile}:`,
             err.message
           )
+          sendResponse({
+            status: `Failed to inject ${scriptFile}`,
+            error: err.message,
+          })
         })
     })
+  }
 
-    return true // Keep sendResponse valid for async call
+  if (message.action === "manualToggle" && message.tabId) {
+    injectScript(message.tabId, "scripts/toggleDark.js", "Dark mode toggled.")
+    return true // Keep sendResponse alive
+  }
+
+  if (message.action === "updateSepia" && message.tabId) {
+    injectScript(message.tabId, "scripts/toggleSepia.js", "Sepia mode toggled.")
+    return true // Keep sendResponse alive
   }
 
   console.warn("[PDF-Darkmode] [WARN] Unknown action received:", message.action)
