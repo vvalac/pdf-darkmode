@@ -1,5 +1,3 @@
-console.log("[DEBUG] popup.js is loaded!")
-
 document.addEventListener("DOMContentLoaded", () => {
   console.log("[DEBUG] DOMContentLoaded event fired in popup.js")
 

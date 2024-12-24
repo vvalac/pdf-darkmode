@@ -1,23 +1,158 @@
+/* Default (Light Mode) */
 body {
   width: 220px;
   font-family: Arial, sans-serif;
   padding: 10px;
+  background-color: #ffffff;
+  color: #383838;
 }
 
 h3 {
   margin-bottom: 10px;
   text-align: center;
+  background-color: #aaaaaa;
+  color: #000000;
 }
 
 button {
   width: 100%;
   margin-top: 10px;
   padding: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #000000;
+  cursor: pointer;
 }
 
-label {
+button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Toggle Container */
+.toggle-container {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 10px;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+/* Ensure label is clickable */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+
+/* The switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Switch Label */
+.switch-label {
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ----------------------------- */
+/* Dark Mode */
+/* ----------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+
+  h3 {
+    color: #ffffff;
+  }
+
+  button {
+    background-color: #3c3c3c;
+    border: 1px solid #555;
+    color: #ffffff;
+  }
+
+  button:hover {
+    background-color: #2c2c2c;
+  }
+
+  .slider {
+    background-color: #444;
+  }
+
+  input:checked + .slider {
+    background-color: #0078d4;
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #0078d4;
+  }
+
+  .slider:before {
+    background-color: #ffffff;
+  }
+
+  .switch-label {
+    color: #ffffff;
+  }
 }
