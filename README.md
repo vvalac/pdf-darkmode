@@ -3,6 +3,7 @@
 _Due to how Chrome handles PDFs, dark mode is handled by inverting colors. The only customization that can be done is overall color balancing_
 
 **Beta 0.1:** Very rough and ready, many debug prints and extra comments. No ability to toggle between sepia mode. Lots of bugs.
+
 **Beta 0.2:** Core functionality is present, including the ability to toggle between Sepia and Standard dark modes.
 
 ## To install:
