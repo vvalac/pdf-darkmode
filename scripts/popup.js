@@ -1,47 +1,58 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[DEBUG] DOMContentLoaded event fired in popup.js")
+  const toggleButton = document.getElementById("toggle-darkmode")
+  const sepiaButton = document.getElementById("sepia-toggle")
 
-  const toggleButton = document.getElementById("toggle-manual")
+  // Load Sepia State from Storage on Startup
+  chrome.storage.local.get("sepiaEnabled", (data) => {
+    const isEnabled = data.sepiaEnabled || false // Correct key here
+    sepiaButton.checked = isEnabled // Set checkbox state
+    document.body.classList.toggle("sepia-mode", isEnabled) // Toggle CSS class
+    console.log(`Sepia enabled? ${isEnabled}`)
+  })
 
-  if (toggleButton) {
-    console.log("[DEBUG] Found toggle-manual button:", toggleButton)
-
-    // Manual Toggle Button
-    toggleButton.addEventListener("click", () => {
-      console.log("[DEBUG] Toggle button clicked")
-
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (chrome.runtime.lastError) {
-          console.error(
-            "[ERROR] chrome.tabs.query failed:",
-            chrome.runtime.lastError.message
-          )
-          return
-        }
-
-        const activeTab = tabs[0]
-        if (activeTab) {
-          console.log("[DEBUG] Active tab:", activeTab)
-
-          chrome.runtime.sendMessage(
-            { action: "manualToggle", tabId: activeTab.id },
-            (response) => {
-              if (chrome.runtime.lastError) {
-                console.error(
-                  "[ERROR] Manual toggle failed:",
-                  chrome.runtime.lastError.message
-                )
-              } else {
-                console.log("[DEBUG] Response from background:", response)
-              }
-            }
-          )
-        } else {
-          console.error("[ERROR] No active tab found")
-        }
-      })
+  // Update Storage When Checkbox Changes
+  sepiaButton.addEventListener("change", (e) => {
+    const isChecked = e.target.checked
+    chrome.storage.local.set({ sepiaEnabled: isChecked }, () => {
+      console.log(`Sepia mode is now ${isChecked ? "enabled" : "disabled"}`)
     })
-  } else {
-    console.error("[ERROR] toggle-manual button not found")
-  }
+    document.body.classList.toggle("sepia-mode", isChecked) // Apply immediately
+  })
+
+  // Handle Dark Mode Toggle Button
+  toggleButton.addEventListener("click", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (chrome.runtime.lastError) {
+        console.error(
+          "[PDF-Darkmode] [ERROR] chrome.tabs.query failed:",
+          chrome.runtime.lastError.message
+        )
+        return
+      }
+
+      const activeTab = tabs[0]
+
+      if (!activeTab) {
+        console.error("[PDF-Darkmode] [ERROR] No active tab found")
+        return
+      }
+
+      // Get the current Sepia state to pass it in the message
+      const isSepia = sepiaButton.checked
+
+      chrome.runtime.sendMessage(
+        { action: "manualToggle", tabId: activeTab.id, sepia: isSepia },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error(
+              "[PDF-Darkmode] [ERROR] Manual toggle failed:",
+              chrome.runtime.lastError.message
+            )
+          } else {
+            console.log("[DEBUG] Response from background:", response)
+          }
+        }
+      )
+    })
+  })
 })

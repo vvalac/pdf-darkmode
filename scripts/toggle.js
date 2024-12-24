@@ -1,5 +1,5 @@
 // Check dark mode state
-chrome.storage.local.get(["darkModeEnabled"], (result) => {
+chrome.storage.local.get(["darkModeEnabled", "sepiaEnabled"], (result) => {
   const STYLES = {
     sepia: `
             embed[type='application/pdf'], iframe[src*='.pdf'] {
@@ -19,6 +19,7 @@ chrome.storage.local.get(["darkModeEnabled"], (result) => {
     off: ``,
   }
   let isDarkModeEnabled = result.darkModeEnabled || false
+  let isSepiaEnabled = result.sepiaEnabled || false
 
   // Target Chrome PDF Viewer
   let pdfEmbed = document.querySelector(
@@ -43,12 +44,12 @@ chrome.storage.local.get(["darkModeEnabled"], (result) => {
     if (!darkModeStyle) {
       darkModeStyle = document.createElement("style")
       darkModeStyle.id = "pdfDarkModeStyle"
-      darkModeStyle.textContent = STYLES["sepia"]
+      darkModeStyle.textContent = isSepiaEnabled
+        ? STYLES["sepia"]
+        : STYLES["invert"]
       document.head.appendChild(darkModeStyle)
-      console.log("[DEBUG] Dark mode CSS applied to PDF embed")
     }
-    chrome.storage.local.set({ darkModeEnabled: true }, () => {
-      console.log("[DEBUG] Dark mode state set to true")
-    })
+
+    chrome.storage.local.set({ darkModeEnabled: true }, () => {})
   }
 })
