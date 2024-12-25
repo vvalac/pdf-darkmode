@@ -6,7 +6,7 @@ _Due to how Chrome handles PDFs, dark mode is handled by inverting colors. The o
 
 **Beta 0.2:** Core functionality is present, including the ability to toggle between Sepia and Standard dark modes.
 
-## To install:
+# To install:
 
 1. In Chrome (or Edge), click the extensions button
 2. Click "Manage Extensions"

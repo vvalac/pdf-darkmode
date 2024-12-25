@@ -9,8 +9,8 @@ body {
 body {
   width: 220px;
   font-family: Arial, sans-serif;
-  background-color: #fefefe; /* Sepia-like background */
-  color: #8a8a8a;
+  background-color: #dddddd;
+  color: #424242;
 }
 
 /* Header (h3) */
@@ -18,8 +18,8 @@ h3 {
   margin: 0;
   padding: 10px; /* Keep some padding inside the header */
   text-align: center;
-  background-color: #ccc;
-  color: #382f24;
+  background-color: #424242;
+  color: #dddddd;
 }
 
 /* Rounded Button */
@@ -27,14 +27,14 @@ button {
   width: calc(100% - 20px);
   margin: 10px;
   padding: 8px;
-  background-color: #d5c4a1;
-  border: 1px solid #b8a893;
-  color: #382f24;
+  background-color: #424242;
+  border: 1px solid #dddddd;
+  color: #dddddd;
   cursor: pointer;
-  border-radius: 8px; /* Rounded corners */
+  border-radius: 34px; /* Rounded corners */
 }
 button:hover {
-  background-color: #c4b299;
+  background-color: #8d8d8d;
 }
 
 /* Toggle Container */
@@ -73,9 +73,12 @@ button:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #a9a9a9;
   transition: 0.4s;
   border-radius: 34px;
+}
+.slider:hover {
+  background-color: #8d8d8d;
 }
 .slider:before {
   content: "";
@@ -84,18 +87,23 @@ button:hover {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: #ffffff;
+  background-color: #dddddd;
   transition: 0.4s;
   border-radius: 50%;
 }
 input:checked + .slider {
-  background-color: #8b6d45; /* Darker sepia tone */
+  background-color: #424242;
 }
+
+input:checked + .slider:hover {
+  background-color: #5f5f5f;
+}
+
 input:checked + .slider:before {
   transform: translateX(26px);
 }
 input:focus + .slider {
-  box-shadow: 0 0 1px #8b6d45;
+  box-shadow: 0 0 1px #424242;
 }
 
 /* Switch label text */
