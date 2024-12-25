@@ -16,7 +16,7 @@ body {
 /* Header (h3) */
 h3 {
   margin: 0;
-  padding: 10px; /* Keep some padding inside the header */
+  padding: 10px;
   text-align: center;
   background-color: #424242;
   color: #dddddd;
@@ -31,7 +31,7 @@ button {
   border: 1px solid #dddddd;
   color: #dddddd;
   cursor: pointer;
-  border-radius: 34px; /* Rounded corners */
+  border-radius: 34px;
 }
 button:hover {
   background-color: #8d8d8d;
