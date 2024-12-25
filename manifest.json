@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "PDF Dark Mode",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Dark mode toggle for PDF files.",
-  "permissions": ["activeTab", "tabs", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["*://*/*.pdf"],
   "background": {
     "service_worker": "scripts/background.js"
