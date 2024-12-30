@@ -17,27 +17,23 @@ chrome.storage.local.get(["darkModeEnabled", "sepiaEnabled"], (result) => {
       `,
   }
 
-  let isDarkModeEnabled = result.darkModeEnabled || false
-  let isSepiaEnabled = result.sepiaEnabled || false
-
   let darkModeStyle = document.getElementById("pdfDarkModeStyle")
 
-  if (isDarkModeEnabled) {
-    // Remove dark mode
-    if (darkModeStyle) {
-      darkModeStyle.remove()
-    }
+  const isDarkModeEnabled = result.darkModeEnabled || false;
+  const isSepiaEnabled = result.sepiaEnabled || false;
+
+  if (darkModeStyle) {
+    // If style exists, remove it and disable dark mode
+    darkModeStyle.remove();
     chrome.storage.local.set({ darkModeEnabled: false })
   } else {
-    // Apply dark mode
-    if (!darkModeStyle) {
-      darkModeStyle = document.createElement("style")
-      darkModeStyle.id = "pdfDarkModeStyle"
-      darkModeStyle.textContent = isSepiaEnabled
-        ? STYLES["sepia"]
-        : STYLES["invert"]
-      document.head.appendChild(darkModeStyle)
-    }
+    // Otherwise, enable dark mode
+    darkModeStyle = document.createElement("style")
+    darkModeStyle.id = "pdfDarkModeStyle";
+    darkModeStyle.textContent = isSepiaEnabled
+      ? STYLES["sepia"]
+      : STYLES["invert"]
+    document.head.appendChild(darkModeStyle);
     chrome.storage.local.set({ darkModeEnabled: true })
   }
 })
