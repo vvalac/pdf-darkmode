@@ -7,10 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs.length) {
         console.error("[PDF-Darkmode] [ERROR] No active tab found");
-        return;
+        return
       }
 
-      chrome.runtime.sendMessage({ action, tabId: tabs[0].id, ...extraData });
+      chrome.runtime.sendMessage({ action, tabId: tabs[0].id, ...extraData })
     })
   }
 
@@ -18,40 +18,38 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateToggleButtonText(isDarkModeEnabled) {
     toggleButton.textContent = isDarkModeEnabled
       ? "Disable Dark Mode"
-      : "Enable Dark Mode";
-    toggleButton.dataset.state = isDarkModeEnabled ? "enabled" : "disabled";
+      : "Enable Dark Mode"
+    toggleButton.dataset.state = isDarkModeEnabled ? "enabled" : "disabled"
   }
 
   // Load State on Startup
   chrome.storage.local.get(["darkModeEnabled", "sepiaEnabled"], (data) => {
-    const isDarkModeEnabled = data.darkModeEnabled || false;
-    const isSepiaEnabled = data.sepiaEnabled || false;
+    const isDarkModeEnabled = data.darkModeEnabled || false
+    const isSepiaEnabled = data.sepiaEnabled || false
 
-    sepiaButton.checked = isSepiaEnabled;
-    updateToggleButtonText(isDarkModeEnabled);
+    sepiaButton.checked = isSepiaEnabled
+    updateToggleButtonText(isDarkModeEnabled)
 
   })
 
   // Sepia Toggle Handler
   sepiaButton.addEventListener("change", (e) => {
     const isChecked = e.target.checked;
-    chrome.storage.local.set({ sepiaEnabled: isChecked }, () => {
-      console.log(`Sepia mode is now ${isChecked ? "enabled" : "disabled"}`);
-    })
+    chrome.storage.local.set({ sepiaEnabled: isChecked }, () => {})
 
-    sendMessageToBackground("updateSepia", { sepia: isChecked });
+    sendMessageToBackground("updateSepia", { sepia: isChecked })
   })
 
   // Dark Mode Toggle Handler
   toggleButton.addEventListener("click", () => {
-    const isChecked = sepiaButton.checked;
+    const isChecked = sepiaButton.checked
 
-    sendMessageToBackground("manualToggle", { sepia: isChecked });
+    sendMessageToBackground("manualToggle", { sepia: isChecked })
 
     // Update UI immediately for responsiveness
     chrome.storage.local.get(["darkModeEnabled"], (data) => {
-      const isDarkModeEnabled = data.darkModeEnabled || false;
-      updateToggleButtonText(!isDarkModeEnabled); // Optimistic toggle
+      const isDarkModeEnabled = data.darkModeEnabled || false
+      updateToggleButtonText(!isDarkModeEnabled)
     })
   })
 })
