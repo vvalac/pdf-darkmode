@@ -6,6 +6,9 @@ _Due to how Chrome handles PDFs, dark mode is handled by inverting colors. The o
 
 **Beta 0.2:** Core functionality is present, including the ability to toggle between Sepia and Standard dark modes.
 
+**Beta 0.3:** Button text dynamically changes based on dark mode and pdf detection.
+- Known bug: It is possible to force a sepia state mismatch by toggling and flipping between tabs.
+
 # To install:
 
 1. In Chrome (or Edge), click the extensions button
