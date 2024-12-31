@@ -37,6 +37,20 @@ button:hover {
   background-color: #8d8d8d;
 }
 
+/* Disabled Button Style */
+button:disabled,
+.button-disabled {
+  opacity: 0.5; /* Make it semi-transparent */
+  cursor: default; /* Change cursor to indicate non-clickable */
+  background-color: #b0b0b0; /* Slightly lighter background */
+  border: 1px solid #cccccc; /* Faded border */
+}
+
+button:disabled:hover,
+.button-disabled:hover {
+  background-color: #b0b0b0; /* Prevent hover effect */
+}
+
 /* Toggle Container */
 .toggle-container {
   display: flex;

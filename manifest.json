@@ -6,7 +6,8 @@
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["*://*/*.pdf"],
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "scripts/background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html",
@@ -16,6 +17,13 @@
       "128": "icons/icon128.png"
     }
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*.pdf"],
+      "js": ["scripts/toggleDark.js", "scripts/toggleSepia.js"],
+      "type": "module"
+    }
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self'; object-src 'self';"
   }
