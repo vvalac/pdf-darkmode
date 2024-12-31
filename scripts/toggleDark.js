@@ -1,4 +1,4 @@
-chrome.storage.local.get(["darkModeEnabled", "sepiaEnabled"], (result) => {
+chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
   const STYLES = {
     sepia: `
         embed[type='application/pdf'], iframe[src*='.pdf'] {
@@ -17,23 +17,20 @@ chrome.storage.local.get(["darkModeEnabled", "sepiaEnabled"], (result) => {
       `,
   }
 
-  let darkModeStyle = document.getElementById("pdfDarkModeStyle")
-
-  const isDarkModeEnabled = result.darkModeEnabled || false;
-  const isSepiaEnabled = result.sepiaEnabled || false;
+  const darkModeStyle = document.getElementById("pdfDarkModeStyle")
+  const isSepiaEnabled = result.sepiaEnabled || false
+  const tabId = result.currentTabId
 
   if (darkModeStyle) {
-    // If style exists, remove it and disable dark mode
-    darkModeStyle.remove();
-    chrome.storage.local.set({ darkModeEnabled: false })
+    // Dark mode is active; disable it
+    darkModeStyle.remove()
+    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: false } })
   } else {
-    // Otherwise, enable dark mode
-    darkModeStyle = document.createElement("style")
-    darkModeStyle.id = "pdfDarkModeStyle";
-    darkModeStyle.textContent = isSepiaEnabled
-      ? STYLES["sepia"]
-      : STYLES["invert"]
-    document.head.appendChild(darkModeStyle);
-    chrome.storage.local.set({ darkModeEnabled: true })
+    // Dark mode is not active; enable it
+    const newStyle = document.createElement("style")
+    newStyle.id = "pdfDarkModeStyle"
+    newStyle.textContent = isSepiaEnabled ? STYLES.sepia : STYLES.invert
+    document.head.appendChild(newStyle)
+    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: true } })
   }
 })

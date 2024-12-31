@@ -1,33 +1,45 @@
 // utils.js
 
-export function isDarkModeEnabled() {
+export function isDarkModeEnabled(tabId) {
   return new Promise((resolve) => {
-    chrome.storage.local.get(["darkModeEnabled"], (result) => {
-      resolve(result.darkModeEnabled || false)
-    })
-  })
+    chrome.storage.local.get([`tab_${tabId}`], (result) => {
+      resolve(result[`tab_${tabId}`]?.darkModeEnabled || false);
+    });
+  });
+}
+
+export function setDarkModeEnabled(tabId, enabled) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: enabled } }, resolve);
+  });
 }
 
 export function isSepiaEnabled() {
   return new Promise((resolve) => {
     chrome.storage.local.get(["sepiaEnabled"], (result) => {
-      resolve(result.sepiaEnabled || false)
-    })
-  })
+      resolve(result.sepiaEnabled || false);
+    });
+  });
 }
 
 export function sendMessageToBackground(action, extraData = {}) {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs.length) {
-        console.error("[PDF-Darkmode] [ERROR] No active tab found")
-        resolve()
-        return
+        console.error("[PDF-Darkmode] [ERROR] No active tab found");
+        resolve();
+        return;
       }
 
-      chrome.runtime.sendMessage({ action, tabId: tabs[0].id, ...extraData }, resolve)
-    })
-  })
+      const tabId = tabs[0].id;
+      chrome.storage.local.set({ currentTabId: tabId }, () => {
+        chrome.runtime.sendMessage(
+          { action, tabId, ...extraData },
+          resolve
+        );
+      });
+    });
+  });
 }
 
 export function checkIfPdfLoaded() {
