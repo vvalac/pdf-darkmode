@@ -39,9 +39,17 @@ export function checkIfPdfLoaded() {
         return;
       }
 
+      const tab = tabs[0];
+
+      // Check if the URL starts with 'chrome://'
+      if (tab.url?.startsWith("chrome://")) {
+        resolve(false);
+        return;
+      }
+
       chrome.scripting.executeScript(
         {
-          target: { tabId: tabs[0].id },
+          target: { tabId: tab.id },
           func: () => {
             // Check for common PDF elements in the DOM
             return !!(
