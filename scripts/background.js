@@ -4,8 +4,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return
   }
 
-  console.log(`[DEBUG] Action received: ${message.action}`)
-
   const injectScript = (tabId, scriptFile, successMessage) => {
     chrome.tabs.get(tabId, () => {
       if (chrome.runtime.lastError) {
@@ -22,7 +20,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           files: [scriptFile],
         })
         .then(() => {
-          console.log(`[DEBUG] ${successMessage}`);
           sendResponse({ status: successMessage });
         })
         .catch((err) => {
