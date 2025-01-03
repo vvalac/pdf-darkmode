@@ -1,21 +1,29 @@
+export async function updateTabState(tabId, updates) {
+  const currentState = await chrome.storage.local.get(`tab_${tabId}`)
+  return chrome.storage.local.set({
+    [`tab_${tabId}`]: {
+      ...currentState[`tab_${tabId}`],
+      ...updates,
+    },
+  })
+}
+
 export function isDarkModeEnabled(tabId) {
   return new Promise((resolve) => {
     chrome.storage.local.get([`tab_${tabId}`], (result) => {
-      resolve(result[`tab_${tabId}`]?.darkModeEnabled || false);
+      resolve(result[`tab_${tabId}`]?.darkModeEnabled || false)
     })
   })
 }
 
-export function setDarkModeEnabled(tabId, enabled) {
-  return new Promise((resolve) => {
-    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: enabled } }, resolve);
-  })
+export async function setDarkModeEnabled(tabId, enabled) {
+  return updateTabState(tabId, { darkModeEnabled: enabled })
 }
 
 export function isSepiaEnabled() {
   return new Promise((resolve) => {
     chrome.storage.local.get(["sepiaEnabled"], (result) => {
-      resolve(result.sepiaEnabled || false);
+      resolve(result.sepiaEnabled || false)
     })
   })
 }
@@ -24,17 +32,14 @@ export function sendMessageToBackground(action, extraData = {}) {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs.length) {
-        console.error("[PDF-Darkmode] [ERROR] No active tab found");
+        console.error("[PDF-Darkmode] [ERROR] No active tab found")
         resolve()
         return
       }
 
-      const tabId = tabs[0].id;
+      const tabId = tabs[0].id
       chrome.storage.local.set({ currentTabId: tabId }, () => {
-        chrome.runtime.sendMessage(
-          { action, tabId, ...extraData },
-          resolve
-        )
+        chrome.runtime.sendMessage({ action, tabId, ...extraData }, resolve)
       })
     })
   })
@@ -49,12 +54,12 @@ export function checkIfPdfLoaded() {
         return
       }
 
-      const tab = tabs[0];
+      const tab = tabs[0]
 
       // Check if the URL starts with 'chrome://'
       if (tab.url?.startsWith("chrome://")) {
-        resolve(false);
-        return;
+        resolve(false)
+        return
       }
 
       chrome.scripting.executeScript(
@@ -66,7 +71,7 @@ export function checkIfPdfLoaded() {
               document.querySelector("embed[type='application/pdf']") ||
               document.querySelector("iframe[src*='.pdf']") ||
               document.querySelector("pdf-viewer")
-            );
+            )
           },
         },
         (injectionResults) => {
@@ -78,12 +83,12 @@ export function checkIfPdfLoaded() {
             console.error(
               "[PDF-Darkmode] [ERROR] Failed to check PDF status:",
               chrome.runtime.lastError?.message
-            );
-            resolve(false);
-            return;
+            )
+            resolve(false)
+            return
           }
 
-          resolve(injectionResults[0].result);
+          resolve(injectionResults[0].result)
         }
       )
     })

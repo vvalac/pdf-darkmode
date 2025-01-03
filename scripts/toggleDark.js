@@ -1,36 +1,40 @@
-chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
+// toggleDark.js
+chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
   const STYLES = {
     sepia: `
-        embed[type='application/pdf'], iframe[src*='.pdf'] {
-          filter: invert(85%) sepia(10%) brightness(90%) contrast(85%) !important;
-          background-color: #222 !important;
-        }
-        embed[type='application/pdf'] img, iframe[src*='.pdf'] img {
-          filter: invert(100%) !important;
-        }
-      `,
+      embed[type='application/pdf'], iframe[src*='.pdf'] {
+        filter: invert(85%) sepia(10%) brightness(90%) contrast(85%) !important;
+        background-color: #222 !important;
+      }
+      embed[type='application/pdf'] img, iframe[src*='.pdf'] img {
+        filter: invert(100%) !important;
+      }
+    `,
     invert: `
-        embed[type='application/pdf'], iframe[src*='.pdf'] {
-          filter: invert(90%) hue-rotate(180deg) !important;
-          background-color: #222 !important;
-        }
-      `,
+      embed[type='application/pdf'], iframe[src*='.pdf'] {
+        filter: invert(90%) hue-rotate(180deg) !important;
+        background-color: #222 !important;
+      }
+    `,
   }
 
-  const darkModeStyle = document.getElementById("pdfDarkModeStyle")
-  const isSepiaEnabled = result.sepiaEnabled || false
   const tabId = result.currentTabId
+  const darkModeStyle = document.getElementById("pdfDarkModeStyle")
+  const newState = !darkModeStyle
 
   if (darkModeStyle) {
-    // Dark mode is active; disable it
     darkModeStyle.remove()
-    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: false } })
   } else {
-    // Dark mode is not active; enable it
     const newStyle = document.createElement("style")
     newStyle.id = "pdfDarkModeStyle"
-    newStyle.textContent = isSepiaEnabled ? STYLES.sepia : STYLES.invert
+    newStyle.textContent = result.sepiaEnabled ? STYLES.sepia : STYLES.invert
     document.head.appendChild(newStyle)
-    chrome.storage.local.set({ [`tab_${tabId}`]: { darkModeEnabled: true } })
   }
+
+  // Send state update to background
+  chrome.runtime.sendMessage({
+    action: "updateDarkMode",
+    tabId,
+    darkModeEnabled: newState,
+  })
 })

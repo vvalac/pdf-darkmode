@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
   sepiaButton.addEventListener("change", async (e) => {
-    const isChecked = e.target.checked;
+    const isChecked = e.target.checked
 
     await chrome.storage.local.set({ sepiaEnabled: isChecked })
     await sendMessageToBackground("updateSepia", { sepia: isChecked })
