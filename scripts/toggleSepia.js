@@ -27,12 +27,6 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
     darkModeStyle.textContent = result.sepiaEnabled
       ? STYLES.sepia
       : STYLES.invert
-
-    // Then update storage
-    await chrome.storage.local.set({
-      sepiaEnabled: result.sepiaEnabled,
-      lastUpdate: Date.now(), // Add timestamp for debugging
-    })
   } catch (err) {
     console.error("[PDF-Darkmode] Failed to update sepia mode:", err)
   }

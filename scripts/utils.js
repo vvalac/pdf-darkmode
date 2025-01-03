@@ -1,6 +1,6 @@
 export async function updateTabState(tabId, updates) {
   const currentState = await chrome.storage.local.get(`tab_${tabId}`)
-  return chrome.storage.local.set({
+  await chrome.storage.local.set({
     [`tab_${tabId}`]: {
       ...currentState[`tab_${tabId}`],
       ...updates,
@@ -8,89 +8,67 @@ export async function updateTabState(tabId, updates) {
   })
 }
 
-export function isDarkModeEnabled(tabId) {
+export async function getCurrentTabId() {
   return new Promise((resolve) => {
-    chrome.storage.local.get([`tab_${tabId}`], (result) => {
-      resolve(result[`tab_${tabId}`]?.darkModeEnabled || false)
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      resolve(tabs[0]?.id)
     })
   })
+}
+
+export async function isDarkModeEnabled(tabId) {
+  const result = await chrome.storage.local.get([`tab_${tabId}`])
+  return (
+    result[`tab_${tabId}`]?.darkModeEnabled === true ||
+    !!document.getElementById("pdfDarkModeStyle")
+  )
 }
 
 export async function setDarkModeEnabled(tabId, enabled) {
   return updateTabState(tabId, { darkModeEnabled: enabled })
 }
 
-export function isSepiaEnabled() {
+export async function isSepiaEnabled() {
+  const result = await chrome.storage.local.get(["sepiaEnabled"])
+  return result.sepiaEnabled === true
+}
+
+export function sendMessageToBackground(action, tabId, extraData = {}) {
   return new Promise((resolve) => {
-    chrome.storage.local.get(["sepiaEnabled"], (result) => {
-      resolve(result.sepiaEnabled || false)
-    })
+    chrome.runtime.sendMessage({ action, tabId, ...extraData }, resolve)
   })
 }
 
-export function sendMessageToBackground(action, extraData = {}) {
+export function checkIfPdfLoaded(tabId) {
   return new Promise((resolve) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!tabs.length) {
-        console.error("[PDF-Darkmode] [ERROR] No active tab found")
-        resolve()
-        return
-      }
-
-      const tabId = tabs[0].id
-      chrome.storage.local.set({ currentTabId: tabId }, () => {
-        chrome.runtime.sendMessage({ action, tabId, ...extraData }, resolve)
-      })
-    })
-  })
-}
-
-export function checkIfPdfLoaded() {
-  return new Promise((resolve) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!tabs.length) {
-        console.error("[PDF-Darkmode] [ERROR] No active tab found.")
-        resolve(false)
-        return
-      }
-
-      const tab = tabs[0]
-
-      // Check if the URL starts with 'chrome://'
-      if (tab.url?.startsWith("chrome://")) {
-        resolve(false)
-        return
-      }
-
-      chrome.scripting.executeScript(
-        {
-          target: { tabId: tab.id },
-          func: () => {
-            // Check for common PDF elements in the DOM
-            return !!(
-              document.querySelector("embed[type='application/pdf']") ||
-              document.querySelector("iframe[src*='.pdf']") ||
-              document.querySelector("pdf-viewer")
-            )
-          },
+    chrome.scripting.executeScript(
+      {
+        target: { tabId },
+        func: () => {
+          // Check for common PDF elements in the DOM
+          return !!(
+            document.querySelector("embed[type='application/pdf']") ||
+            document.querySelector("iframe[src*='.pdf']") ||
+            document.querySelector("pdf-viewer")
+          )
         },
-        (injectionResults) => {
-          if (
-            chrome.runtime.lastError ||
-            !injectionResults ||
-            !injectionResults.length
-          ) {
-            console.error(
-              "[PDF-Darkmode] [ERROR] Failed to check PDF status:",
-              chrome.runtime.lastError?.message
-            )
-            resolve(false)
-            return
-          }
-
-          resolve(injectionResults[0].result)
+      },
+      (injectionResults) => {
+        if (
+          chrome.runtime.lastError ||
+          !injectionResults ||
+          !injectionResults.length
+        ) {
+          console.error(
+            "[PDF-Darkmode] [ERROR] Failed to check PDF status:",
+            chrome.runtime.lastError?.message
+          )
+          resolve(false)
+          return
         }
-      )
-    })
+
+        resolve(injectionResults[0].result)
+      }
+    )
   })
 }
