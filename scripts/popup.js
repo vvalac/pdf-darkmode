@@ -10,9 +10,9 @@ import {
 document.addEventListener("DOMContentLoaded", async () => {
   const toggleButton = document.getElementById("toggle-darkmode")
   const sepiaButton = document.getElementById("sepia-toggle")
-  const currentTab = await getCurrentTabId() // Await the tab ID
+  const currentTab = await getCurrentTabId()
 
-  await updateUI(currentTab) // Pass currentTab to updateUI
+  await updateUI(currentTab)
 
   toggleButton.addEventListener("click", async () => {
     const darkMode = await isDarkModeEnabled(currentTab)
