@@ -18,10 +18,41 @@ export async function getCurrentTabId() {
 
 export async function isDarkModeEnabled(tabId) {
   const result = await chrome.storage.local.get([`tab_${tabId}`])
-  return (
-    result[`tab_${tabId}`]?.darkModeEnabled === true ||
-    !!document.getElementById("pdfDarkModeStyle")
-  )
+  const storageState = result[`tab_${tabId}`]?.darkModeEnabled === true
+
+  const overlayState = await new Promise((resolve) => {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId },
+        func: () => {
+          return !!document.getElementById("pdfDarkModeStyle")
+        },
+      },
+      (injectionResults) => {
+        if (
+          chrome.runtime.lastError ||
+          !injectionResults ||
+          !injectionResults.length
+        ) {
+          console.error(
+            "[PDF-Darkmode] [ERROR] Failed to check overlay status:",
+            chrome.runtime.lastError?.message
+          )
+          resolve(false)
+          return
+        }
+        resolve(injectionResults[0].result)
+      }
+    )
+  })
+
+  // If there's a mismatch, update storage to match reality
+  if (storageState !== overlayState) {
+    await updateTabState(tabId, { darkModeEnabled: overlayState })
+    return overlayState
+  }
+
+  return storageState
 }
 
 export async function setDarkModeEnabled(tabId, enabled) {
@@ -33,9 +64,11 @@ export async function isSepiaEnabled() {
   return result.sepiaEnabled === true
 }
 
-export function sendMessageToBackground(action, tabId, extraData = {}) {
+export function sendMessageToBackground(action, data = {}) {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action, tabId, ...extraData }, resolve)
+    chrome.runtime.sendMessage({ action, ...data }, (response) => {
+      resolve(response)
+    })
   })
 }
 

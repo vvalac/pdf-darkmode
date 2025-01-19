@@ -14,26 +14,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await updateUI(currentTab)
 
+  chrome.storage.onChanged.addListener(async (changes) => {
+    await updateUI(currentTab)
+  })
+
   toggleButton.addEventListener("click", async () => {
     const darkMode = await isDarkModeEnabled(currentTab)
 
     await setDarkModeEnabled(currentTab, !darkMode)
-    await sendMessageToBackground("manualToggle", currentTab, {
-      darkMode: !darkMode,
+    const response = await sendMessageToBackground("manualToggle", {
+      tabId: currentTab,
     })
 
-    await updateUI(currentTab)
+    if (response && response.status === "Dark mode toggled.") {
+      // Add a small delay to ensure storage is updated
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      await updateUI(currentTab)
+    }
   })
 
   sepiaButton.addEventListener("change", async (e) => {
     const isChecked = e.target.checked
 
-    await chrome.storage.local.set({ sepiaEnabled: isChecked })
-    await sendMessageToBackground("updateSepia", currentTab, {
+    const response = await sendMessageToBackground("updateSepia", {
+      tabId: currentTab,
       sepia: isChecked,
     })
 
-    await updateUI(currentTab)
+    if (response && response.status === "Sepia mode toggled.") {
+      // Add a small delay to ensure storage is updated
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      await updateUI(currentTab)
+    }
   })
 })
 
@@ -54,8 +66,7 @@ async function updateUI(currentTab) {
   }
 
   toggleButton.disabled = false
-  sepiaButton.disabled = false
-
   toggleButton.textContent = isDark ? "Disable Dark Mode" : "Enable Dark Mode"
+  sepiaButton.disabled = false
   sepiaButton.checked = isSepia
 }
