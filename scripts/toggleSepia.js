@@ -18,15 +18,22 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
   }
 
   const darkModeStyle = document.getElementById("pdfDarkModeStyle")
+  const tabId = result.currentTabId
+
   if (!darkModeStyle) {
-    return // Exit if dark mode isn't enabled
+    return
   }
 
   try {
-    // Update style first
     darkModeStyle.textContent = result.sepiaEnabled
       ? STYLES.sepia
       : STYLES.invert
+
+    chrome.runtime.sendMessage({
+      action: "updateSepia",
+      tabId,
+      sepia: result.sepiaEnabled,
+    })
   } catch (err) {
     console.error("[PDF-Darkmode] Failed to update sepia mode:", err)
   }

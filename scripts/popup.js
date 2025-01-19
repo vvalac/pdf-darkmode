@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     })
 
     if (response && response.status === "Dark mode toggled.") {
-      // Add a small delay to ensure storage is updated
       await new Promise((resolve) => setTimeout(resolve, 100))
       await updateUI(currentTab)
     }
@@ -36,13 +35,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   sepiaButton.addEventListener("change", async (e) => {
     const isChecked = e.target.checked
 
+    await chrome.storage.local.set({ sepiaEnabled: isChecked })
     const response = await sendMessageToBackground("updateSepia", {
       tabId: currentTab,
       sepia: isChecked,
     })
 
     if (response && response.status === "Sepia mode toggled.") {
-      // Add a small delay to ensure storage is updated
       await new Promise((resolve) => setTimeout(resolve, 100))
       await updateUI(currentTab)
     }
