@@ -1,4 +1,9 @@
-chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
+chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
+  if (!result.currentTabId) {
+    console.error("[PDF-Darkmode] [ERROR] No currentTabId in storage")
+    return
+  }
+
   const STYLES = {
     sepia: `
       html {
@@ -18,6 +23,7 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
   const tabId = result.currentTabId
 
   if (!darkModeStyle) {
+    // Dark mode is not enabled, nothing to update
     return
   }
 
@@ -32,6 +38,6 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
       sepia: result.sepiaEnabled,
     })
   } catch (err) {
-    console.error("[PDF-Darkmode] Failed to update sepia mode:", err)
+    console.error("[PDF-Darkmode] [ERROR] Failed to update sepia mode:", err)
   }
 })

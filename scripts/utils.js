@@ -1,11 +1,20 @@
 export async function updateTabState(tabId, updates) {
-  const currentState = await chrome.storage.local.get(`tab_${tabId}`)
-  await chrome.storage.local.set({
-    [`tab_${tabId}`]: {
-      ...currentState[`tab_${tabId}`],
-      ...updates,
-    },
-  })
+  if (!tabId || typeof tabId !== "number") {
+    console.error("[PDF-Darkmode] [ERROR] Invalid tabId:", tabId)
+    return
+  }
+
+  try {
+    const currentState = await chrome.storage.local.get(`tab_${tabId}`)
+    await chrome.storage.local.set({
+      [`tab_${tabId}`]: {
+        ...currentState[`tab_${tabId}`],
+        ...updates,
+      },
+    })
+  } catch (err) {
+    console.error("[PDF-Darkmode] [ERROR] Failed to update tab state:", err)
+  }
 }
 
 export async function getCurrentTabId() {
@@ -17,8 +26,21 @@ export async function getCurrentTabId() {
 }
 
 export async function isDarkModeEnabled(tabId) {
-  const result = await chrome.storage.local.get([`tab_${tabId}`])
-  return result[`tab_${tabId}`]?.darkModeEnabled === true
+  if (!tabId || typeof tabId !== "number") {
+    console.error("[PDF-Darkmode] [ERROR] Invalid tabId:", tabId)
+    return false
+  }
+
+  try {
+    const result = await chrome.storage.local.get([`tab_${tabId}`])
+    return result[`tab_${tabId}`]?.darkModeEnabled === true
+  } catch (err) {
+    console.error(
+      "[PDF-Darkmode] [ERROR] Failed to check dark mode state:",
+      err
+    )
+    return false
+  }
 }
 
 export async function setDarkModeEnabled(tabId, enabled) {

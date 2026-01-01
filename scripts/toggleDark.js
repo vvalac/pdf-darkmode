@@ -1,5 +1,10 @@
 // toggleDark.js
-chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
+chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
+  if (!result.currentTabId) {
+    console.error("[PDF-Darkmode] [ERROR] No currentTabId in storage")
+    return
+  }
+
   const STYLES = {
     sepia: `
       html {
@@ -19,19 +24,23 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], async (result) => {
   const darkModeStyle = document.getElementById("pdfDarkModeStyle")
   const newState = !darkModeStyle
 
-  if (darkModeStyle) {
-    darkModeStyle.remove()
-  } else {
-    const newStyle = document.createElement("style")
-    newStyle.id = "pdfDarkModeStyle"
-    newStyle.textContent = result.sepiaEnabled ? STYLES.sepia : STYLES.invert
-    document.head.appendChild(newStyle)
-  }
+  try {
+    if (darkModeStyle) {
+      darkModeStyle.remove()
+    } else {
+      const newStyle = document.createElement("style")
+      newStyle.id = "pdfDarkModeStyle"
+      newStyle.textContent = result.sepiaEnabled ? STYLES.sepia : STYLES.invert
+      document.head.appendChild(newStyle)
+    }
 
-  // Send state update to background
-  chrome.runtime.sendMessage({
-    action: "updateDarkMode",
-    tabId,
-    darkModeEnabled: newState,
-  })
+    // Send state update to background
+    chrome.runtime.sendMessage({
+      action: "updateDarkMode",
+      tabId,
+      darkModeEnabled: newState,
+    })
+  } catch (err) {
+    console.error("[PDF-Darkmode] [ERROR] Failed to toggle dark mode:", err)
+  }
 })

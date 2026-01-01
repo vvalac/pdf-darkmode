@@ -19,31 +19,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   })
 
   toggleButton.addEventListener("click", async () => {
-    const darkMode = await isDarkModeEnabled(currentTab)
+    try {
+      const darkMode = await isDarkModeEnabled(currentTab)
 
-    await setDarkModeEnabled(currentTab, !darkMode)
-    const response = await sendMessageToBackground("manualToggle", {
-      tabId: currentTab,
-    })
+      await setDarkModeEnabled(currentTab, !darkMode)
+      const response = await sendMessageToBackground("manualToggle", {
+        tabId: currentTab,
+      })
 
-    if (response && response.status === "Dark mode toggled.") {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      await updateUI(currentTab)
+      if (response && response.status === "Dark mode toggled.") {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        await updateUI(currentTab)
+      } else {
+        console.error(
+          "[PDF-Darkmode] [ERROR] Failed to toggle:",
+          response?.error
+        )
+        toggleButton.textContent = "Error - Try Again"
+        setTimeout(() => updateUI(currentTab), 2000)
+      }
+    } catch (err) {
+      console.error("[PDF-Darkmode] [ERROR] Toggle failed:", err)
+      toggleButton.textContent = "Error - Try Again"
+      setTimeout(() => updateUI(currentTab), 2000)
     }
   })
 
   sepiaButton.addEventListener("change", async (e) => {
-    const isChecked = e.target.checked
+    try {
+      const isChecked = e.target.checked
 
-    await chrome.storage.local.set({ sepiaEnabled: isChecked })
-    const response = await sendMessageToBackground("updateSepia", {
-      tabId: currentTab,
-      sepia: isChecked,
-    })
+      await chrome.storage.local.set({ sepiaEnabled: isChecked })
+      const response = await sendMessageToBackground("updateSepia", {
+        tabId: currentTab,
+        sepia: isChecked,
+      })
 
-    if (response && response.status === "Sepia mode toggled.") {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      await updateUI(currentTab)
+      if (response && response.status === "Sepia mode toggled.") {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        await updateUI(currentTab)
+      } else {
+        console.error(
+          "[PDF-Darkmode] [ERROR] Failed to toggle sepia:",
+          response?.error
+        )
+      }
+    } catch (err) {
+      console.error("[PDF-Darkmode] [ERROR] Sepia toggle failed:", err)
     }
   })
 })
