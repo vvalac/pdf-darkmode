@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "PDF Dark Mode",
-  "version": "0.3",
+  "version": "0.4",
   "description": "Dark mode toggle for PDF files.",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["*://*/*.pdf"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "scripts/background.js",
     "type": "module"
@@ -17,13 +17,6 @@
       "128": "icons/icon128.png"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*/*.pdf"],
-      "js": ["scripts/toggleDark.js", "scripts/toggleSepia.js"],
-      "type": "module"
-    }
-  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self'; object-src 'self';"
   }

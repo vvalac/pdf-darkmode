@@ -56,17 +56,47 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === "manualToggle" && message.tabId) {
-    injectScript(message.tabId, "scripts/toggleDark.js", "Dark mode toggled.")
-    return true
-  }
-
-  if (message.action === "updateSepia" && message.tabId) {
-    injectScript(message.tabId, "scripts/toggleSepia.js", "Sepia mode toggled.")
-    chrome.storage.local.set({
-      sepiaEnabled: message.sepia,
+    chrome.storage.local.set({ currentTabId: message.tabId }, () => {
+      chrome.scripting
+        .executeScript({
+          target: { tabId: message.tabId },
+          files: ["scripts/toggleDark.js"],
+        })
+        .then(() => {
+          sendResponse({ status: "Dark mode toggled." })
+        })
+        .catch((err) => {
+          console.error("[PDF-Darkmode] [ERROR] Failed to inject:", err.message)
+          sendResponse({ status: "Failed", error: err.message })
+        })
     })
     return true
   }
 
-  console.warn("[PDF-Darkmode] [WARN] Unknown action received:", message.action)
+  if (message.action === "updateSepia" && message.tabId) {
+    chrome.storage.local.set(
+      {
+        sepiaEnabled: message.sepia,
+        currentTabId: message.tabId,
+      },
+      () => {
+        chrome.scripting
+          .executeScript({
+            target: { tabId: message.tabId },
+            files: ["scripts/toggleSepia.js"],
+          })
+          .then(() => {
+            sendResponse({ status: "Sepia mode toggled." })
+          })
+          .catch((err) => {
+            console.error(
+              "[PDF-Darkmode] [ERROR] Failed to inject:",
+              err.message
+            )
+            sendResponse({ status: "Failed", error: err.message })
+          })
+      }
+    )
+    return true
+  }
 })
