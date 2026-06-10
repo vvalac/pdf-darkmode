@@ -37,7 +37,7 @@ export async function isDarkModeEnabled(tabId) {
   } catch (err) {
     console.error(
       "[PDF-Darkmode] [ERROR] Failed to check dark mode state:",
-      err
+      err,
     )
     return false
   }
@@ -67,7 +67,7 @@ export function checkIfPdfLoaded(tabId) {
       if (chrome.runtime.lastError) {
         console.error(
           "[PDF-Darkmode] [ERROR] Failed to get tab:",
-          chrome.runtime.lastError.message
+          chrome.runtime.lastError.message,
         )
         resolve(false)
         return
@@ -79,6 +79,7 @@ export function checkIfPdfLoaded(tabId) {
         url.toLowerCase().endsWith(".pdf") ||
         url.toLowerCase().includes(".pdf?") ||
         url.toLowerCase().includes(".pdf#") ||
+        url.toLowerCase().includes("/pdf/") ||
         url.includes("pdfjs.action=download") ||
         (url.includes("chrome-extension://") && url.includes(".pdf"))
 
@@ -93,11 +94,20 @@ export function checkIfPdfLoaded(tabId) {
         {
           target: { tabId },
           func: () => {
-            // Check for common PDF elements in the DOM
+            const pdfEmbedSelector = [
+              "embed[type*='pdf' i]",
+              "object[type*='pdf' i]",
+              "iframe[src*='.pdf' i]",
+              "embed[original-url$='.pdf' i]",
+              "embed[original-url*='.pdf?' i]",
+              "embed[original-url*='.pdf#' i]",
+              "embed[original-url*='/pdf/' i]",
+              "pdf-viewer",
+            ].join(",")
+
             return !!(
-              document.querySelector("embed[type='application/pdf']") ||
-              document.querySelector("iframe[src*='.pdf']") ||
-              document.querySelector("pdf-viewer")
+              document.contentType === "application/pdf" ||
+              document.querySelector(pdfEmbedSelector)
             )
           },
         },
@@ -113,7 +123,7 @@ export function checkIfPdfLoaded(tabId) {
           }
 
           resolve(injectionResults[0].result)
-        }
+        },
       )
     })
   })

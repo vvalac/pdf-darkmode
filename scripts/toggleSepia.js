@@ -6,13 +6,29 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
 
   const STYLES = {
     sepia: `
-      html {
+      html, body {
+        background-color: #222 !important;
+      }
+
+      embed[type*="pdf" i],
+      object[type*="pdf" i],
+      iframe[src*=".pdf" i],
+      pdf-viewer,
+      html:not(:has(embed[type*="pdf" i], object[type*="pdf" i], iframe[src*=".pdf" i], pdf-viewer)) {
         filter: invert(85%) sepia(10%) brightness(90%) contrast(85%) !important;
         background-color: #222 !important;
       }
     `,
     invert: `
-      html {
+      html, body {
+        background-color: #222 !important;
+      }
+
+      embed[type*="pdf" i],
+      object[type*="pdf" i],
+      iframe[src*=".pdf" i],
+      pdf-viewer,
+      html:not(:has(embed[type*="pdf" i], object[type*="pdf" i], iframe[src*=".pdf" i], pdf-viewer)) {
         filter: invert(90%) hue-rotate(180deg) !important;
         background-color: #222 !important;
       }
@@ -31,12 +47,6 @@ chrome.storage.local.get(["sepiaEnabled", "currentTabId"], (result) => {
     darkModeStyle.textContent = result.sepiaEnabled
       ? STYLES.sepia
       : STYLES.invert
-
-    chrome.runtime.sendMessage({
-      action: "updateSepia",
-      tabId,
-      sepia: result.sepiaEnabled,
-    })
   } catch (err) {
     console.error("[PDF-Darkmode] [ERROR] Failed to update sepia mode:", err)
   }
